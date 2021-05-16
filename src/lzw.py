@@ -16,22 +16,22 @@ class LZW:
         return {i: (i.to_bytes(1, 'big')) for i in range(256)}
 
     def compress(self, data: str):
+        compressed_file = open('compressed_file.txt.lzw', 'w')
+
         if isinstance(data, str):
             data = data.encode()
 
         self.dictionary: dict = self.init_dictionary()
-        compressed_file = open('compressed_file.txt.lzw', 'w')
-        key: int = 256
-        first_byte: bytes = data[0].to_bytes(1, 'big')
-        starting_index: int = 0
-        next_byte: bytes
-        message_size: int = len(data)-1
 
-        dictionary_overflow = starting_index + 1 > message_size
+        key, index, message_size = 256, 0, len(data)-1
+        first_byte: bytes = data[0].to_bytes(1, 'big')
+        next_byte: bytes
+
+        dictionary_overflow = index + 1 > message_size
 
         while not dictionary_overflow:
-            next_byte = data[starting_index + 1].to_bytes(1, 'big')
-            concatenated_words: bytes = data[starting_index].to_bytes(
+            next_byte = data[index + 1].to_bytes(1, 'big')
+            concatenated_words: bytes = data[index].to_bytes(
                 1, 'big') + next_byte
 
             if concatenated_words in self.dictionary:
@@ -40,27 +40,27 @@ class LZW:
                 while concatenated_words in self.dictionary:
                     next_index += 1
                     first_byte = concatenated_words
-                    if starting_index + next_index > message_size:
+                    if index + next_index > message_size:
                         break
 
-                    concatenated_words += data[starting_index +
+                    concatenated_words += data[index +
                                                next_index].to_bytes(1, 'big')
 
                 self.compressed_message.append(
                     str(self.dictionary[first_byte]))
-                starting_index += len(first_byte)
+                index += len(first_byte)
 
             else:
                 self.compressed_message.append(
                     str(self.dictionary[first_byte]))
                 first_byte = next_byte
-                starting_index += len(first_byte)
+                index += len(first_byte)
 
             if key <= self.dictionary_size:
                 key += 1
                 self.dictionary[concatenated_words] = key
 
-            dictionary_overflow = starting_index + 1 > message_size
+            dictionary_overflow = index + 1 > message_size
 
         separator: str = ','
         compressed_file.write(separator.join(self.compressed_message))
