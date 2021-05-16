@@ -1,9 +1,0 @@
-aabababaaa
-
-
-
-0 - a
-1 - b
-
-#it1
-cod 'a' verifica se 'aa' está no dict

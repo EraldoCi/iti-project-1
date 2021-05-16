@@ -1,20 +1,25 @@
 import sys
-import os
+import pathlib
 
 
 class LZW:
     def __init__(self, dictionary_size: int):
         self.dictionary_size = dictionary_size
-        self.dictionary: dict = self.init_dictionary()
+        self.dictionary: dict
+        self.reversed_dictionary: dict
         self.compressed_message: list = []
 
     def init_dictionary(self):
         return {(i.to_bytes(1, 'big')): i for i in range(256)}
 
+    def init_reversed_dictiionary(self):
+        return {i: (i.to_bytes(1, 'big')) for i in range(256)}
+
     def compress(self, data: str):
         if isinstance(data, str):
             data = data.encode()
 
+        self.dictionary: dict = self.init_dictionary()
         compressed_file = open('compressed_file.txt.lzw', 'w')
         key: int = 256
         first_byte: bytes = data[0].to_bytes(1, 'big')
@@ -43,13 +48,11 @@ class LZW:
 
                 self.compressed_message.append(
                     str(self.dictionary[first_byte]))
-                # compressed_file.write(str(self.dictionary[first_byte]))
                 starting_index += len(first_byte)
 
             else:
                 self.compressed_message.append(
                     str(self.dictionary[first_byte]))
-                # compressed_file.write(str(self.dictionary[first_byte]))
                 first_byte = next_byte
                 starting_index += len(first_byte)
 
@@ -59,7 +62,6 @@ class LZW:
 
             dictionary_overflow = starting_index + 1 > message_size
 
-        # print(self.compressed_message)
         separator: str = ','
         compressed_file.write(separator.join(self.compressed_message))
         compressed_file.close()
@@ -67,6 +69,7 @@ class LZW:
         return self.compressed_message
 
     def decompress(self, data):
+        self.reversed_dictionary = self.init_reversed_dictiionary()
         return data
 
     def calculate_cr(self):
@@ -81,14 +84,14 @@ class LZW:
 '''
 if __name__ == '__main__':
 
-    root_path: str = '/home/gustavo/Downloads/P9/ITI'
+    root_path: str = pathlib.Path().absolute()
     _, file_name, command, dictionary_size = sys.argv
     try:
         dictionary_size = 2**int(dictionary_size)
     except:
         dictionary_size = 2**9
 
-    file_path: str = os.path.join(root_path, 'iti-project-1/data', file_name)
+    file_path: str = f'{root_path}/data/{file_name}'
     lzw = LZW(dictionary_size)
 
     if command == '-c':
