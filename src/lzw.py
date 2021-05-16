@@ -1,9 +1,10 @@
 import sys
+import os
 
 
 class LZW:
-    def __init__(self, k_size: int):
-        self.k_size = k_size
+    def __init__(self, dictionary_size: int):
+        self.dictionary_size = dictionary_size
         self.dictionary: dict = self.init_dictionary()
         self.compressed_message: list = []
 
@@ -14,12 +15,14 @@ class LZW:
         if isinstance(data, str):
             data = data.encode()
 
+        compressed_file = open('compressed_file.txt.lzw', 'w')
         key: int = 256
         first_byte: bytes = data[0].to_bytes(1, 'big')
         starting_index: int = 0
         next_byte: bytes
+        message_size: int = len(data)-1
 
-        dictionary_overflow = starting_index + 1 > len(data)-1
+        dictionary_overflow = starting_index + 1 > message_size
 
         while not dictionary_overflow:
             next_byte = data[starting_index + 1].to_bytes(1, 'big')
@@ -29,30 +32,38 @@ class LZW:
             if concatenated_words in self.dictionary:
                 next_index = 1
 
-                while concatenated_words in self.dictionary or dictionary_overflow:
+                while concatenated_words in self.dictionary:
                     next_index += 1
                     first_byte = concatenated_words
-                    dictionary_overflow = starting_index + \
-                        next_index > len(data)-1
+                    if starting_index + next_index > message_size:
+                        break
 
                     concatenated_words += data[starting_index +
                                                next_index].to_bytes(1, 'big')
 
-                self.compressed_message.append(self.dictionary[first_byte])
+                self.compressed_message.append(
+                    str(self.dictionary[first_byte]))
+                # compressed_file.write(str(self.dictionary[first_byte]))
                 starting_index += len(first_byte)
 
             else:
-                self.compressed_message.append(self.dictionary[first_byte])
+                self.compressed_message.append(
+                    str(self.dictionary[first_byte]))
+                # compressed_file.write(str(self.dictionary[first_byte]))
                 first_byte = next_byte
                 starting_index += len(first_byte)
 
-            if key <= self.k_size:
+            if key <= self.dictionary_size:
                 key += 1
                 self.dictionary[concatenated_words] = key
 
-            dictionary_overflow = starting_index + 1 > len(data)-1
+            dictionary_overflow = starting_index + 1 > message_size
 
-        print(self.compressed_message)
+        # print(self.compressed_message)
+        separator: str = ','
+        compressed_file.write(separator.join(self.compressed_message))
+        compressed_file.close()
+
         return self.compressed_message
 
     def decompress(self, data):
@@ -63,25 +74,26 @@ class LZW:
 
 
 ''' 
-  Run lzw using:
+  Run lzw using the following comand for compressing:
   $ python lwz.py file_name.extension -c k_size 
-  or 
+  or for decompressing
   use: $ python lwz.py file_name.extension -d k_size 
-  by default k_size = 9
 '''
 if __name__ == '__main__':
 
-    k_size: int
+    root_path: str = '/home/gustavo/Downloads/P9/ITI'
+    _, file_name, command, dictionary_size = sys.argv
     try:
-        k_size = 2**int(sys.argv[2])
+        dictionary_size = 2**int(dictionary_size)
     except:
-        k_size = 2**9
+        dictionary_size = 2**9
 
-    lzw = LZW(k_size)
+    file_path: str = os.path.join(root_path, 'iti-project-1/data', file_name)
+    lzw = LZW(dictionary_size)
 
-    if sys.argv[2] == '-c':
-        with open(sys.argv[1], 'rb') as input_file:
+    if command == '-c':
+        with open(file_path, 'rb') as input_file:
             lzw.compress(input_file.read())
-    elif sys.argv[2] == '-d':
-        with open(sys.argv[1], 'rb') as input_file:
+    elif command == '-d':
+        with open(file_name, 'rb') as input_file:
             lzw.decompress(input_file.read())
