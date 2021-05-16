@@ -1,0 +1,64 @@
+aabababaaa
+
+0 a
+1 b
+2 aa
+
+dicionario = {
+  "a": '0',
+  "b": '1',
+  ...
+  "Z": "255",
+  "aa": "256"
+}
+
+'a'
+  -> '0' -> 'aa' não tá -> 
+                    dicionario['aa'] = '256'
+                    mensagem_codificada.append('0') porque nao ta
+'a'
+  -> '0' -> 'ab' não tá -> 
+                    dicionario['ab'] = '257'
+                    mensagem_codificada.append('0') porque nao ta
+'b'
+  -> '1' -> 'ba' não tá -> 
+                    dicionario['ba'] = '258'
+                    mensagem_codificada.append('1') porque nao ta
+'a'
+  -> '0' -> 'ab' tá -> 
+                    dicionario["aba"] = '259' e idx + 1
+                    mensagem_codificada.append('257') porque ta
+'a'
+  -> '0' -> 'ab' tá -> 
+                      dicionario['aba'] == cod('aba') e idx + 1
+                    -> 
+                      dicionario['abaa'] = '260' e idx + 1
+                    mensagem_codificada.append('259') porque ta
+'a'
+  -> '0' -> 'aa' tá -> 
+                    dicionario['aa'] e idx + 1
+                    mensagem_codificada.append('256') porque ta
+
+def compress('aabababaaa'):
+  dicionario = todos_os_simbolos_dicionario()
+  indice_dicionario = "256"
+  mensagem_codificada = []
+
+  enquato idx menor que o tamanho da mensagem - 1:
+    proximo_simbolo = mensagem[idx + 1]
+
+    enquanto o f"{simbolo}{proximo_simbolo}" está no dicionario:
+      idx += 1
+      se o idx for menor que o tamanho da mensagem - 1
+        simbolo = f"{simbolo}{proximo_simbolo}"
+        proximo_simbolo = mensagem[idx + 1]
+        se f"{simbolo}{proximo_simbolo}" não estiver no dicionario:
+          dicionario[f"{simbolo}{proximo_simbolo}"] = str(indice_dicionario + 1)
+          mensagem_codificada.append(f"{simbolo}")
+
+    se o simbolo nao tiver no dicionario:
+      dicionario[f"{simbolo}{proximo_simbolo}"] = indice_dicionario
+      indice_dicionario = str(indice_dicionario + 1)
+      mensagem_codificada.append(simbolo)
+    
+    idx += 1
