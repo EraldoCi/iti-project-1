@@ -18,7 +18,7 @@ class LZW:
     def init_decode_dictionary(self) -> Dict:
         return {f'{i}': (i.to_bytes(1, 'big')) for i in range(256)}
 
-    def compress(self, data: List[str]) -> None:
+    def compress(self, data):
         compressed_file = open('./data/test.bin', 'w')
 
         message_size = len(data)-1
@@ -26,20 +26,18 @@ class LZW:
             print('There is no content to compress!')
             return
 
-        if isinstance(data, str):
-            data = data.encode()
-
         self.dictionary: dict = self.init_code_dictionary()
 
         key, index = 255, 0
-        first_byte: bytes = data[0].to_bytes(1, 'big')
+        current_byte: bytes = data[0].to_bytes(1, 'big')
         next_byte: bytes
 
-        dictionary_overflow = index + 1 > message_size
-
         start_time = timeit.default_timer()
-        while not dictionary_overflow:
-            next_byte = data[index + 1].to_bytes(1, 'big')
+        while not index + 1 > message_size + 1:
+            try:
+                next_byte = data[index + 1].to_bytes(1, 'big')
+            except:
+                next_byte = b''
             concatenated_words: bytes = data[index].to_bytes(
                 1, 'big') + next_byte
 
@@ -48,7 +46,7 @@ class LZW:
 
                 while concatenated_words in self.dictionary:
                     next_index += 1
-                    first_byte = concatenated_words
+                    current_byte = concatenated_words
                     if index + next_index > message_size:
                         break
 
@@ -56,20 +54,21 @@ class LZW:
                                                next_index].to_bytes(1, 'big')
 
                 self.compressed_message.append(
-                    str(self.dictionary[first_byte]))
-                index += len(first_byte)
+                    str(self.dictionary[current_byte]))
+                index += len(current_byte)
 
             else:
                 self.compressed_message.append(
-                    str(self.dictionary[first_byte]))
-                first_byte = next_byte
-                index += len(first_byte)
+                    str(self.dictionary[current_byte]))
+                index += len(current_byte)
 
             if key <= self.dictionary_size:
                 key += 1
                 self.dictionary[concatenated_words] = key
-
-            dictionary_overflow = index + 1 > message_size
+                try:
+                    current_byte = concatenated_words[-1:]
+                except:
+                    current_byte = next_byte
 
         end_time = timeit.default_timer()
         print(f'Execution time: {end_time - start_time}s')
@@ -78,7 +77,8 @@ class LZW:
         compressed_file.write(separator.join(self.compressed_message))
         compressed_file.close()
 
-        print(self.compressed_message)
+        # print(self.compressed_message)
+
         return
 
     def decompress(self, data):
