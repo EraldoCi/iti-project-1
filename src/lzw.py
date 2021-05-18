@@ -32,17 +32,21 @@ class LZW:
         self.dictionary: dict = self.init_code_dictionary()
 
         key, index = 255, 0
-        current_byte: bytes = data[0].to_bytes(1, 'big')
+        # current_byte: bytes = data[0].to_bytes(1, 'big')
+        current_byte: bytes = str(data[0]).encode('latin-1')
         next_byte: bytes
 
         start_time = timeit.default_timer()
         while not index + 1 > message_size + 1:
             try:
-                next_byte = data[index + 1].to_bytes(1, 'big')
+                # next_byte = data[index + 1].to_bytes(1, 'big')
+                next_byte = str(data[index + 1]).encode('latin-1')
             except:
                 next_byte = b''
-            concatenated_words: bytes = data[index].to_bytes(
-                1, 'big') + next_byte
+            # concatenated_words: bytes = data[index].to_bytes(
+            #     1, 'big') + next_byte
+            concatenated_words: bytes = str(
+                data[index]).encode('latin-1') + next_byte
 
             if concatenated_words in self.dictionary:
                 next_index = 1
@@ -53,8 +57,10 @@ class LZW:
                     if index + next_index > message_size:
                         break
 
-                    concatenated_words += data[index +
-                                               next_index].to_bytes(1, 'big')
+                    # concatenated_words += data[index +
+                    #                            next_index].to_bytes(1, 'big')
+                    concatenated_words += str(data[index +
+                                                   next_index]).encode('latin-1')
 
                 self.compressed_message.append(
                     self.dictionary[current_byte])
@@ -74,8 +80,9 @@ class LZW:
                     current_byte = next_byte
 
         end_time = timeit.default_timer()
+        print(self.compressed_message)
         compressed_file.write(struct.pack(
-            'h'*len(self.compressed_message), *self.compressed_message))
+            f">{'I'*len(self.compressed_message)}", *self.compressed_message))
         compressed_file.close()
         print(
             f"\nSIZE AFTER COMPRESSION: {os.path.getsize(f'./data/test/{file_name}.bin')}")
@@ -93,6 +100,7 @@ class LZW:
 
         for i in range(1, len(data)):
             code = str(data[i])
+            print(decode_dictionary)
             decoded_symbol = decode_dictionary[code].decode(
                 'latin-1')
             symbol = decoded_symbol[0] if len(
@@ -125,30 +133,35 @@ if __name__ == '__main__':
 
     root_path: str = pathlib.Path().absolute()
     _, file_name, command, dictionary_size = sys.argv
+    print(_, file_name, command, dictionary_size)
     try:
         dictionary_size = 2**int(dictionary_size)
     except:
         dictionary_size = 2**9
 
     file_path: str = f'{root_path}/data/test/{file_name}'
-    # print(file_path)
+
     lzw = LZW(dictionary_size)
 
     if command == '-c':
+        print({file_path})
         with open(file_path, 'rb') as input_file:
             print(f"SIZE BEFORE COMPRESSION: {os.path.getsize(file_path)}")
             lzw.compress(input_file.read(), file_name)
 
     elif command == '-d':
         with open(file=file_path, mode='rb') as input_file:
+            data = [69, 117, 32, 110, 227, 111, 32, 103, 111, 115,
+                    116, 261, 100, 261, 71, 117, 115, 118, 260, 122, 260]
+            print(lzw.decompress([str(n) for n in data]))
+            exit()
             file_bytes = input_file.read()
             print(len(file_bytes))
             bytes_to_string_list = struct.unpack(
-                'h'*(round(len(file_bytes)/2)), file_bytes)
+                f">{'I'*(round(len(file_bytes)/4))}", file_bytes)
             print(bytes_to_string_list)
             decoded_message = lzw.decompress(data=bytes_to_string_list)
             print(decoded_message)
-            exit()
             file_for_decoded_message = open(
                 f'{root_path}/data/test/decompress-{file_name}', 'wb')
             file_for_decoded_message.write(base64.b64decode(decoded_message))
