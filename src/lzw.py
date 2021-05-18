@@ -2,6 +2,7 @@ import sys
 import pathlib
 from typing import List, Dict
 from compressor import Compressor
+from decompressor import Decompressor
 import timeit
 import os
 import struct
@@ -24,49 +25,24 @@ class LZW:
     def compress(self, data, file_name):
         compressed_file = open(f'./data/test/{file_name}.bin', 'wb')
 
-        message_size = len(data)-1
-        if message_size < 1:
-            print('There is no content to compress!')
-            return
-
-        self.dictionary: dict = self.init_code_dictionary()
-        compressor = Compressor(data=data, dictionary=self.dictionary)
+        compressor = Compressor(
+            data=data, dictionary=self.init_decode_dictionary())
         self.compressed_message = compressor.run()
-        end_time = timeit.default_timer()
+
         compressed_file.write(struct.pack(
             f">{'I'*len(self.compressed_message)}", *self.compressed_message))
         compressed_file.close()
         print(
             f"\nSIZE AFTER COMPRESSION: {os.path.getsize(f'./data/test/{file_name}.bin')}")
-        # print(self.compressed_message)
 
-        return
+        return "Finished Compression 🗜"
 
     def decompress(self, data):
-        decode_dictionary = self.init_decode_dictionary()
-        decoded_message, current_index = [], "256"
-        first_letter = decode_dictionary[str(data[0])]
-        decoded_message.append(first_letter.decode('ISO-8859-1'))
+        decompressor = Decompressor(
+            data=data, dictionary=self.init_decode_dictionary())
+        decoded_message = decompressor.run()
 
-        decode_dictionary[current_index] = first_letter
-
-        for i in range(1, len(data)):
-            code = str(data[i])
-            decoded_symbol = decode_dictionary[code].decode(
-                'ISO-8859-1')
-            symbol = decoded_symbol[0] if len(
-                decoded_symbol) else decoded_symbol
-
-            decode_dictionary[current_index] = decode_dictionary[current_index] + \
-                symbol.encode('ISO-8859-1')
-
-            current_index = str(int(current_index) + 1)
-            decode_dictionary[current_index] = decode_dictionary[code]
-
-            decoded_message.append(
-                decode_dictionary[code].decode('ISO-8859-1'))
-
-        return "".join(decoded_message)
+        return decoded_message
 
     def calculate_ratio_compression(self):
         return 'compression ratio value'
@@ -79,9 +55,6 @@ class LZW:
   use: $ python lwz.py file_name.extension -d k_size
 '''
 if __name__ == '__main__':
-    # lzw = LZW(256)
-    # print(lzw.decompress(['97', '97', '98', '257', '259', '256']))
-
     root_path: str = pathlib.Path().absolute()
     _, file_name, command, dictionary_size = sys.argv
     print(_, file_name, command, dictionary_size)
