@@ -3,6 +3,9 @@ import pathlib
 from typing import List, Dict
 import timeit
 import numpy as np
+import os
+import struct
+import base64
 
 
 class LZW:
@@ -18,8 +21,8 @@ class LZW:
     def init_decode_dictionary(self) -> Dict:
         return {f'{i}': (i.to_bytes(1, 'big')) for i in range(256)}
 
-    def compress(self, data):
-        compressed_file = open('./data/test.bin', 'w')
+    def compress(self, data, file_name):
+        compressed_file = open(f'./data/test/{file_name}.bin', 'wb')
 
         message_size = len(data)-1
         if message_size < 1:
@@ -54,12 +57,12 @@ class LZW:
                                                next_index].to_bytes(1, 'big')
 
                 self.compressed_message.append(
-                    str(self.dictionary[current_byte]))
+                    self.dictionary[current_byte])
                 index += len(current_byte)
 
             else:
                 self.compressed_message.append(
-                    str(self.dictionary[current_byte]))
+                    self.dictionary[current_byte])
                 index += len(current_byte)
 
             if key <= self.dictionary_size:
@@ -71,12 +74,11 @@ class LZW:
                     current_byte = next_byte
 
         end_time = timeit.default_timer()
-        print(f'Execution time: {end_time - start_time}s')
-
-        separator: str = ','
-        compressed_file.write(separator.join(self.compressed_message))
+        compressed_file.write(struct.pack(
+            'h'*len(self.compressed_message), *self.compressed_message))
         compressed_file.close()
-
+        print(
+            f"\nSIZE AFTER COMPRESSION: {os.path.getsize(f'./data/test/{file_name}.bin')}")
         # print(self.compressed_message)
 
         return
@@ -84,24 +86,26 @@ class LZW:
     def decompress(self, data):
         decode_dictionary = self.init_decode_dictionary()
         decoded_message, current_index = [], "256"
-        first_letter = decode_dictionary[data[0]]
-        decoded_message.append(first_letter.decode('UTF-8'))
+        first_letter = decode_dictionary[str(data[0])]
+        decoded_message.append(first_letter.decode('latin-1'))
 
         decode_dictionary[current_index] = first_letter
 
         for i in range(1, len(data)):
-            code = data[i]
-            decoded_symbol = decode_dictionary[code].decode('UTF-8')
+            code = str(data[i])
+            decoded_symbol = decode_dictionary[code].decode(
+                'latin-1')
             symbol = decoded_symbol[0] if len(
                 decoded_symbol) else decoded_symbol
 
             decode_dictionary[current_index] = decode_dictionary[current_index] + \
-                symbol.encode('UTF-8')
+                symbol.encode('latin-1')
 
             current_index = str(int(current_index) + 1)
             decode_dictionary[current_index] = decode_dictionary[code]
 
-            decoded_message.append(decode_dictionary[code].decode('UTF-8'))
+            decoded_message.append(
+                decode_dictionary[code].decode('latin-1'))
 
         return "".join(decoded_message)
 
@@ -126,23 +130,26 @@ if __name__ == '__main__':
     except:
         dictionary_size = 2**9
 
-    file_path: str = f'{root_path}/data/{file_name}'
-    print(file_path)
+    file_path: str = f'{root_path}/data/test/{file_name}'
+    # print(file_path)
     lzw = LZW(dictionary_size)
 
     if command == '-c':
         with open(file_path, 'rb') as input_file:
-            lzw.compress(input_file.read())
+            print(f"SIZE BEFORE COMPRESSION: {os.path.getsize(file_path)}")
+            lzw.compress(input_file.read(), file_name)
+
     elif command == '-d':
-        with open('./data/test.bin', 'rb') as input_file:
-            file_bytes = input_file.readline()
-            splitted_byte = str(file_bytes).split(',')
-
-            splitted_byte[0] = splitted_byte[0][2:]
-            splitted_byte[-1] = splitted_byte[-1][:-1]
-
-            print(lzw.decompress(data=splitted_byte))
-
-    # with open('./data/compressed_file.txt', 'rb') as input_file:
-    #     while byte := input_file.read(1)
-    #         print()
+        with open(file=file_path, mode='rb') as input_file:
+            file_bytes = input_file.read()
+            print(len(file_bytes))
+            bytes_to_string_list = struct.unpack(
+                'h'*(round(len(file_bytes)/2)), file_bytes)
+            print(bytes_to_string_list)
+            decoded_message = lzw.decompress(data=bytes_to_string_list)
+            print(decoded_message)
+            exit()
+            file_for_decoded_message = open(
+                f'{root_path}/data/test/decompress-{file_name}', 'wb')
+            file_for_decoded_message.write(base64.b64decode(decoded_message))
+            file_for_decoded_message.close()
