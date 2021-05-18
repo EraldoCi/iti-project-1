@@ -3,4 +3,4 @@
 *.lzw
 __pycache__
 .DS_Store
-data/large_inputs/
+large_inputs
