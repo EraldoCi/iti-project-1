@@ -1,8 +1,8 @@
 import sys
 import pathlib
 from typing import List, Dict
+from compressor import Compressor
 import timeit
-import numpy as np
 import os
 import struct
 import base64
@@ -30,55 +30,9 @@ class LZW:
             return
 
         self.dictionary: dict = self.init_code_dictionary()
-
-        key, index = 255, 0
-        # current_byte: bytes = data[0].to_bytes(1, 'big')
-        current_byte: bytes = str(data[0]).encode('latin-1')
-        next_byte: bytes
-
-        start_time = timeit.default_timer()
-        while not index + 1 > message_size + 1:
-            try:
-                # next_byte = data[index + 1].to_bytes(1, 'big')
-                next_byte = str(data[index + 1]).encode('latin-1')
-            except:
-                next_byte = b''
-            # concatenated_words: bytes = data[index].to_bytes(
-            #     1, 'big') + next_byte
-            concatenated_words: bytes = str(
-                data[index]).encode('latin-1') + next_byte
-
-            if concatenated_words in self.dictionary:
-                next_index = 1
-
-                while concatenated_words in self.dictionary:
-                    next_index += 1
-                    current_byte = concatenated_words
-                    if index + next_index > message_size:
-                        break
-
-                    # concatenated_words += data[index +
-                    #                            next_index].to_bytes(1, 'big')
-                    concatenated_words += str(data[index +
-                                                   next_index]).encode('latin-1')
-
-                self.compressed_message.append(
-                    self.dictionary[current_byte])
-                index += len(current_byte)
-
-            else:
-                self.compressed_message.append(
-                    self.dictionary[current_byte])
-                index += len(current_byte)
-
-            if key <= self.dictionary_size:
-                key += 1
-                self.dictionary[concatenated_words] = key
-                try:
-                    current_byte = concatenated_words[-1:]
-                except:
-                    current_byte = next_byte
-
+        compressor = Compressor(data=data)
+        self.compressed_message = compressor.run()
+        exit()
         end_time = timeit.default_timer()
         print(self.compressed_message)
         compressed_file.write(struct.pack(
@@ -151,8 +105,7 @@ if __name__ == '__main__':
 
     elif command == '-d':
         with open(file=file_path, mode='rb') as input_file:
-            data = [69, 117, 32, 110, 227, 111, 32, 103, 111, 115,
-                    116, 261, 100, 261, 71, 117, 115, 118, 260, 122, 260]
+            data = [97, 97, 98, 257, 259, 256, 97, 122]
             print(lzw.decompress([str(n) for n in data]))
             exit()
             file_bytes = input_file.read()
