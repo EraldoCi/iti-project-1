@@ -3,3 +3,5 @@
 *.lzw
 __pycache__
 .DS_Store
+corpus16MB.txt
+corpus16MB.txt.bin
