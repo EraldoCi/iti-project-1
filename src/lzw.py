@@ -30,11 +30,9 @@ class LZW:
             return
 
         self.dictionary: dict = self.init_code_dictionary()
-        compressor = Compressor(data=data)
+        compressor = Compressor(data=data, dictionary=self.dictionary)
         self.compressed_message = compressor.run()
-        exit()
         end_time = timeit.default_timer()
-        print(self.compressed_message)
         compressed_file.write(struct.pack(
             f">{'I'*len(self.compressed_message)}", *self.compressed_message))
         compressed_file.close()
@@ -48,26 +46,25 @@ class LZW:
         decode_dictionary = self.init_decode_dictionary()
         decoded_message, current_index = [], "256"
         first_letter = decode_dictionary[str(data[0])]
-        decoded_message.append(first_letter.decode('latin-1'))
+        decoded_message.append(first_letter.decode('ISO-8859-1'))
 
         decode_dictionary[current_index] = first_letter
 
         for i in range(1, len(data)):
             code = str(data[i])
-            print(decode_dictionary)
             decoded_symbol = decode_dictionary[code].decode(
-                'latin-1')
+                'ISO-8859-1')
             symbol = decoded_symbol[0] if len(
                 decoded_symbol) else decoded_symbol
 
             decode_dictionary[current_index] = decode_dictionary[current_index] + \
-                symbol.encode('latin-1')
+                symbol.encode('ISO-8859-1')
 
             current_index = str(int(current_index) + 1)
             decode_dictionary[current_index] = decode_dictionary[code]
 
             decoded_message.append(
-                decode_dictionary[code].decode('latin-1'))
+                decode_dictionary[code].decode('ISO-8859-1'))
 
         return "".join(decoded_message)
 
@@ -93,28 +90,24 @@ if __name__ == '__main__':
     except:
         dictionary_size = 2**9
 
-    file_path: str = f'{root_path}/data/test/{file_name}'
+    file_path: str = f'{root_path}/data/large_inputs/{file_name}'
 
     lzw = LZW(dictionary_size)
 
     if command == '-c':
-        print({file_path})
         with open(file_path, 'rb') as input_file:
             print(f"SIZE BEFORE COMPRESSION: {os.path.getsize(file_path)}")
             lzw.compress(input_file.read(), file_name)
 
     elif command == '-d':
         with open(file=file_path, mode='rb') as input_file:
-            data = [97, 97, 98, 257, 259, 256, 97, 122]
-            print(lzw.decompress([str(n) for n in data]))
-            exit()
             file_bytes = input_file.read()
             print(len(file_bytes))
             bytes_to_string_list = struct.unpack(
                 f">{'I'*(round(len(file_bytes)/4))}", file_bytes)
-            print(bytes_to_string_list)
             decoded_message = lzw.decompress(data=bytes_to_string_list)
             print(decoded_message)
+            exit()
             file_for_decoded_message = open(
                 f'{root_path}/data/test/decompress-{file_name}', 'wb')
             file_for_decoded_message.write(base64.b64decode(decoded_message))
