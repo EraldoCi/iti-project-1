@@ -1,3 +1,8 @@
+from utils.compressor.encode_data import encode_data
+from utils.compressor.concat_symbols import concat_symbols
+from utils.compressor.symbol_to_latin_encode import symbol_to_latin_encode
+
+
 def lzw_compressor(data):
     current_dictionary_value, idx, encoded_message = 256, 0, []
     encode_dictionary = {(i.to_bytes(1, 'big')): i for i in range(256)}
@@ -30,19 +35,6 @@ def lzw_compressor(data):
         idx += 1
 
     return encoded_message
-
-
-def encode_data(data, idx):
-    return data[idx].encode('latin-1')
-
-
-def symbol_to_latin_encode(symbol, dictionary):
-    return dictionary[symbol]
-
-
-def concat_symbols(symbol, next_symbol):
-    print(symbol, next_symbol, symbol + next_symbol)
-    return symbol + next_symbol
 
 
 lzw_compressor('Eu não gosto do Gusvãozão')
