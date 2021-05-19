@@ -1,17 +1,18 @@
+import os
 import sys
+import struct
 import pathlib
 from typing import List, Dict
+import plotly.graph_objects as go
 from compressor import Compressor
 from decompressor import Decompressor
-import timeit
-import os
-import struct
-import base64
+from utils.compressor.generate_graphs import generate_graphs
+from utils.convert_time_to_seconds import convert_time_to_seconds
+from utils.get_number_of_bytes_necessary_for_number import get_number_of_bytes_necessary_for_number
 
 
 class LZW:
-    def __init__(self, dictionary_size: int):
-        self.dictionary_size = dictionary_size
+    def __init__(self):
         self.dictionary: dict
         self.reversed_dictionary: dict
         self.compressed_message: list = []
@@ -20,20 +21,18 @@ class LZW:
         dictionary_size = pow(2, k - 1)
         dictionary = {}
         for i in range(dictionary_size):
-            if i < 256:
-                dictionary[i.to_bytes(1, 'big')] = i
-            else:
-                dictionary[i.to_bytes(16, 'big')] = i
+            dictionary[i.to_bytes(
+                get_number_of_bytes_necessary_for_number(i), 'big')] = i
+
         return dictionary
 
     def init_decode_dictionary(self, k) -> Dict:
         dictionary_size = pow(2, k - 1)
         dictionary = {}
+
         for i in range(dictionary_size):
-            if i < 256:
-                dictionary[f'{i}'] = i.to_bytes(1, 'big')
-            else:
-                dictionary[f'{i}'] = i.to_bytes(16, 'big')
+            dictionary[f'{i}'] = i.to_bytes(
+                get_number_of_bytes_necessary_for_number(i), 'big')
         return dictionary
 
     def compress(self, data, file_name, k):
@@ -42,7 +41,10 @@ class LZW:
 
         compressor = Compressor(
             data=data, dictionary=self.init_code_dictionary(k))
-        self.compressed_message = compressor.run()
+        compressor_response = compressor.run()
+
+        elapsed_time = compressor_response["time"]
+        self.compressed_message = compressor_response["message"]
 
         compressed_file.write(struct.pack(
             f">{'I'*len(self.compressed_message)}", *self.compressed_message))
@@ -52,7 +54,9 @@ class LZW:
 
         return {
             "Message": "Finished Compression 🗜",
-            "Compression file size": os.path.getsize(f'./data/large_inputs/compression/{file_name}.bin')
+            "Compression file size": os.path.getsize(f'./data/large_inputs/compression/{file_name}.bin'),
+            "Elapsed Time": elapsed_time,
+            "Indices": len(self.compressed_message)
         }
 
     def decompress(self, data, k):
@@ -74,22 +78,33 @@ class LZW:
 '''
 if __name__ == '__main__':
     root_path: str = pathlib.Path().absolute()
-    _, file_name, command, dictionary_size = sys.argv
-    print(_, file_name, command, dictionary_size)
+    _, file_name, command = sys.argv
+    print(_, file_name, command)
 
     file_path: str = f'{root_path}/data/large_inputs/'
 
-    lzw = LZW(dictionary_size)
+    lzw = LZW()
 
     if command == '-c':
-        with open(f"{file_path}/{file_name}", 'rb') as input_file:
-            input_file_size = os.path.getsize(f"{file_path}/{file_name}")
-            print(
-                f"SIZE BEFORE COMPRESSION: {input_file_size}")
-            compressed_data = lzw.compress(
-                input_file.read(), file_name, int(dictionary_size))
-            compressed_ratio = compressed_data["Compression file size"] / \
-                input_file_size
+        compressed_ratio_values, time_values, indices_used_values = [], [], []
+        for dictionary_size in range(9, 17):
+            with open(f"{file_path}/{file_name}", 'rb') as input_file:
+                input_file_size = os.path.getsize(f"{file_path}/{file_name}")
+                print(
+                    f"SIZE BEFORE COMPRESSION: {input_file_size} | K = {dictionary_size}")
+                compressed_data = lzw.compress(
+                    input_file.read(), file_name, int(dictionary_size))
+                print("INDICES ", compressed_data["Indices"])
+                compressed_ratio = (
+                    input_file_size * 8) / (compressed_data["Compression file size"] * dictionary_size)
+
+                compressed_ratio_values.append(compressed_ratio)
+                time_values.append(convert_time_to_seconds(
+                    compressed_data["Elapsed Time"]))
+                indices_used_values.append(compressed_data["Indices"])
+
+        generate_graphs(compressed_ratio_values,
+                        time_values, indices_used_values)
 
     elif command == '-d':
         with open(file=f"{file_path}/compression/{file_name}.bin", mode='rb') as input_file:
@@ -98,12 +113,15 @@ if __name__ == '__main__':
             bytes_to_string_list = struct.unpack(
                 f">{'I'*(round(len(file_bytes)/4))}", file_bytes)
             decoded_message = lzw.decompress(
-                bytes_to_string_list, int(dictionary_size))
+                bytes_to_string_list, int(16))
+
+            print("ORIGINAL DECODED MESSAGE -> ", len(decoded_message))
+            print("DECODED MESSAGE SLIGHTLY SMALLER -> ",
+                  len(decoded_message[:-8]))
             file_for_decoded_message = open(
                 file=f'./data/large_inputs/decompression/{file_name}',
-                encoding='ISO-8859-1',
-                mode='w'
+                mode='wb'
             )
-
-            file_for_decoded_message.write(decoded_message)
+            file_for_decoded_message.write(
+                decoded_message.encode('latin_1'))
             file_for_decoded_message.close()

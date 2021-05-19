@@ -6,13 +6,14 @@ from tqdm import tqdm
 
 class Compressor():
     def __init__(self, data, dictionary):
-        self.data = data.decode('ISO-8859-1')
+        self.data = data.decode('latin_1')
         self.dictionary = dictionary
 
     def run(self):
         message_size = len(self.data)-1
         if message_size < 1:
             return "There is no content to compress!"
+
         current_dictionary_value, idx, encoded_message = 256, 0, []
 
         progress_bar = tqdm(total=message_size, iterable=self.data,
@@ -52,6 +53,11 @@ class Compressor():
 
             progress_bar.update(1)
 
-        progress_bar.close()
+        elapsed_time = progress_bar.format_interval(
+            progress_bar.format_dict["elapsed"])
 
-        return encoded_message
+        progress_bar.close()
+        return {
+            "message": encoded_message,
+            "time": elapsed_time
+        }
