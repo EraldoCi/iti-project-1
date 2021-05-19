@@ -26,7 +26,7 @@ class LZW:
         compressed_file = open(f'./data/test/{file_name}.bin', 'wb')
 
         compressor = Compressor(
-            data=data, dictionary=self.init_decode_dictionary())
+            data=data, dictionary=self.init_code_dictionary())
         self.compressed_message = compressor.run()
 
         compressed_file.write(struct.pack(
