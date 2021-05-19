@@ -44,12 +44,12 @@ class Compressor():
                 current_dictionary_value += 1
                 encoded_message.append(
                     symbol_to_latin_encode(symbol, self.dictionary))
-
                 if idx == message_size - 1:
                     encoded_message.append(
-                        symbol_to_latin_encode(next_symbol, self.dictionary))
+                        symbol_to_latin_encode(encode_data(self.data, idx + 1), self.dictionary))
 
             idx += 1
+
             progress_bar.update(1)
 
         progress_bar.close()
