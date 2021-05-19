@@ -17,22 +17,22 @@ class LZW:
         self.reversed_dictionary: dict
         self.compressed_message: list = []
 
-    def init_code_dictionary(self, k) -> Dict:
+    def init_code_dictionary(self, k, file_type) -> Dict:
         dictionary_size = pow(2, k - 1)
         dictionary = {}
         for i in range(dictionary_size):
             dictionary[i.to_bytes(
-                get_number_of_bytes_necessary_for_number(i), 'big')] = i
+                get_number_of_bytes_necessary_for_number(i, file_type), 'big')] = i
 
         return dictionary
 
-    def init_decode_dictionary(self, k) -> Dict:
+    def init_decode_dictionary(self, k, file_type) -> Dict:
         dictionary_size = pow(2, k - 1)
         dictionary = {}
 
         for i in range(dictionary_size):
             dictionary[f'{i}'] = i.to_bytes(
-                get_number_of_bytes_necessary_for_number(i), 'big')
+                get_number_of_bytes_necessary_for_number(i, file_type), 'big')
         return dictionary
 
     def compress(self, data, file_name, k):
@@ -40,7 +40,7 @@ class LZW:
             f'./data/large_inputs/compression/{file_name}.bin', 'wb')
 
         compressor = Compressor(
-            data=data, dictionary=self.init_code_dictionary(k))
+            data=data, dictionary=self.init_code_dictionary(k=k, file_type=file_name.split(".")[-1]))
         compressor_response = compressor.run()
 
         elapsed_time = compressor_response["time"]
@@ -61,7 +61,7 @@ class LZW:
 
     def decompress(self, data, k):
         decompressor = Decompressor(
-            data=data, dictionary=self.init_decode_dictionary(k))
+            data=data, dictionary=self.init_decode_dictionary(k=k, file_type=file_name.split(".")[-1]))
         decoded_message = decompressor.run()
 
         return decoded_message
