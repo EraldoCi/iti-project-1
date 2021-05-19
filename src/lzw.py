@@ -23,7 +23,8 @@ class LZW:
         return {f'{i}': (i.to_bytes(1, 'big')) for i in range(256)}
 
     def compress(self, data, file_name):
-        compressed_file = open(f'./data/test/{file_name}.bin', 'wb')
+        compressed_file = open(
+            f'./data/large_inputs/compression/{file_name}.bin', 'wb')
 
         compressor = Compressor(
             data=data, dictionary=self.init_code_dictionary())
@@ -33,7 +34,7 @@ class LZW:
             f">{'I'*len(self.compressed_message)}", *self.compressed_message))
         compressed_file.close()
         print(
-            f"\nSIZE AFTER COMPRESSION: {os.path.getsize(f'./data/test/{file_name}.bin')}")
+            f"\nSIZE AFTER COMPRESSION: {os.path.getsize(f'./data/large_inputs/compression/{file_name}.bin')}")
 
         return "Finished Compression 🗜"
 
@@ -63,25 +64,26 @@ if __name__ == '__main__':
     except:
         dictionary_size = 2**9
 
-    file_path: str = f'{root_path}/data/large_inputs/{file_name}'
+    file_path: str = f'{root_path}/data/large_inputs/'
 
     lzw = LZW(dictionary_size)
 
     if command == '-c':
-        with open(file_path, 'rb') as input_file:
+        with open(f"{file_path}/{file_name}", 'rb') as input_file:
             print(f"SIZE BEFORE COMPRESSION: {os.path.getsize(file_path)}")
             lzw.compress(input_file.read(), file_name)
 
     elif command == '-d':
-        with open(file=file_path, mode='rb') as input_file:
+        with open(file=f"{file_path}/compression/{file_name}.bin", mode='rb') as input_file:
             file_bytes = input_file.read()
             print(len(file_bytes))
             bytes_to_string_list = struct.unpack(
                 f">{'I'*(round(len(file_bytes)/4))}", file_bytes)
             decoded_message = lzw.decompress(data=bytes_to_string_list)
-            print(decoded_message)
-            exit()
             file_for_decoded_message = open(
-                f'{root_path}/data/test/decompress-{file_name}', 'wb')
-            file_for_decoded_message.write(base64.b64decode(decoded_message))
+                file=f'./data/large_inputs/decompression/{file_name}',
+                encoding='ISO-8859-1',
+                mode='w'
+            )
+            file_for_decoded_message.write(decoded_message)
             file_for_decoded_message.close()
