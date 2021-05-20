@@ -26,26 +26,23 @@ class Compressor():
             next_symbol = encode_data(self.data, idx + 1)
             concatenated_symbols = concat_symbols(symbol, next_symbol)
 
-            while concatenated_symbols in self.dictionary:
+            while concatenated_symbols in self.dictionary and idx < message_size:
                 idx += 1
                 progress_bar.update(1)
                 symbol = concatenated_symbols
-                if idx < message_size:
-                    if concatenated_symbols not in self.dictionary and len(self.dictionary) < self.k:
-                        self.dictionary[concatenated_symbols] = current_dictionary_value
+
+                if concatenated_symbols not in self.dictionary and current_dictionary_value < self.k:
+                    self.dictionary[concatenated_symbols] = current_dictionary_value
+                    current_dictionary_value += 1
                     encoded_message.append(
                         symbol_to_latin_encode(symbol, self.dictionary))
-                    concatenated_symbols = concat_symbols(
-                        symbol, encode_data(self.data, idx + 1))
-                else:
-                    encoded_message.append(
-                        symbol_to_latin_encode(symbol, self.dictionary))
-                    break
+                concatenated_symbols = concat_symbols(
+                    symbol, encode_data(self.data, idx + 1))
 
             if concatenated_symbols not in self.dictionary:
-                if len(self.dictionary) < self.k:
+                if current_dictionary_value < self.k:
                     self.dictionary[concatenated_symbols] = current_dictionary_value
-                current_dictionary_value += 1
+                    current_dictionary_value += 1
                 encoded_message.append(
                     symbol_to_latin_encode(symbol, self.dictionary))
                 if idx == message_size - 1:
@@ -55,7 +52,7 @@ class Compressor():
             idx += 1
 
             progress_bar.update(1)
-
+        print("CURRENT DICTIONARY VALUE ", current_dictionary_value)
         elapsed_time = progress_bar.format_interval(
             progress_bar.format_dict["elapsed"])
 

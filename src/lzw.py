@@ -17,21 +17,19 @@ class LZW:
         self.compressed_message: list = []
 
     def init_code_dictionary(self, k, file_type) -> Dict:
-        dictionary_size = pow(2, k)
+        dictionary_size = 256
         dictionary = {}
         for i in range(dictionary_size):
-            dictionary[i.to_bytes(
-                get_number_of_bytes_necessary_for_number(i, file_type), 'big')] = i
+            dictionary[i.to_bytes(1, 'big')] = i
 
         return dictionary
 
     def init_decode_dictionary(self, k, file_type) -> Dict:
-        dictionary_size = pow(2, k)
+        dictionary_size = 256
         dictionary = {}
 
         for i in range(dictionary_size):
-            dictionary[f'{i}'] = i.to_bytes(
-                get_number_of_bytes_necessary_for_number(i, file_type), 'big')
+            dictionary[f'{i}'] = i.to_bytes(1, 'big')
         return dictionary
 
     def compress(self, data, file_name, k):
@@ -46,7 +44,7 @@ class LZW:
         self.compressed_message = compressor_response["message"]
 
         compressed_file.write(struct.pack(
-            f">{'I'*len(self.compressed_message)}", *self.compressed_message))
+            f">{'H'*len(self.compressed_message)}", *self.compressed_message))
         compressed_file.close()
         print(
             f"\nSIZE AFTER COMPRESSION: {os.path.getsize(f'./data/large_inputs/compression/{file_name}.bin')}")
@@ -85,7 +83,7 @@ if __name__ == '__main__':
 
     if command == '-c':
         compressed_ratio_values, time_values, indices_used_values = [], [], []
-        for dictionary_size in range(16, 17):
+        for dictionary_size in range(9, 17):
             with open(f"{file_path}/{file_name}", 'rb') as input_file:
                 input_file_size = os.path.getsize(f"{file_path}/{file_name}")
                 print(
@@ -109,13 +107,11 @@ if __name__ == '__main__':
             file_bytes = input_file.read()
             print(len(file_bytes))
             bytes_to_string_list = struct.unpack(
-                f">{'I'*(round(len(file_bytes)/4))}", file_bytes)
+                f">{'H'*(round(len(file_bytes)/2))}", file_bytes)
             decoded_message = lzw.decompress(
                 data=bytes_to_string_list, k=int(16), file_name=file_name)
 
             print("ORIGINAL DECODED MESSAGE -> ", len(decoded_message))
-            print("DECODED MESSAGE SLIGHTLY SMALLER -> ",
-                  len(decoded_message[:-8]))
             file_for_decoded_message = open(
                 file=f'./data/large_inputs/decompression/{file_name}',
                 mode='wb'
