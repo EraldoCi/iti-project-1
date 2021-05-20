@@ -3,7 +3,6 @@ import sys
 import struct
 import pathlib
 from typing import List, Dict
-import plotly.graph_objects as go
 from compressor import Compressor
 from decompressor import Decompressor
 from utils.compressor.generate_graphs import generate_graphs
@@ -53,13 +52,12 @@ class LZW:
             f"\nSIZE AFTER COMPRESSION: {os.path.getsize(f'./data/large_inputs/compression/{file_name}.bin')}")
 
         return {
-            "Message": "Finished Compression 🗜",
             "Compression file size": os.path.getsize(f'./data/large_inputs/compression/{file_name}.bin'),
             "Elapsed Time": elapsed_time,
             "Indices": len(self.compressed_message)
         }
 
-    def decompress(self, data, k):
+    def decompress(self, data, file_name, k):
         decompressor = Decompressor(
             data=data, dictionary=self.init_decode_dictionary(k=k, file_type=file_name.split(".")[-1]))
         decoded_message = decompressor.run()
@@ -113,7 +111,7 @@ if __name__ == '__main__':
             bytes_to_string_list = struct.unpack(
                 f">{'I'*(round(len(file_bytes)/4))}", file_bytes)
             decoded_message = lzw.decompress(
-                bytes_to_string_list, int(16))
+                data=bytes_to_string_list, k=int(16), file_name=file_name)
 
             print("ORIGINAL DECODED MESSAGE -> ", len(decoded_message))
             print("DECODED MESSAGE SLIGHTLY SMALLER -> ",
