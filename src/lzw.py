@@ -17,7 +17,7 @@ class LZW:
         self.compressed_message: list = []
 
     def init_code_dictionary(self, k, file_type) -> Dict:
-        dictionary_size = pow(2, k - 1)
+        dictionary_size = pow(2, k)
         dictionary = {}
         for i in range(dictionary_size):
             dictionary[i.to_bytes(
@@ -26,7 +26,7 @@ class LZW:
         return dictionary
 
     def init_decode_dictionary(self, k, file_type) -> Dict:
-        dictionary_size = pow(2, k - 1)
+        dictionary_size = pow(2, k)
         dictionary = {}
 
         for i in range(dictionary_size):
@@ -39,7 +39,7 @@ class LZW:
             f'./data/large_inputs/compression/{file_name}.bin', 'wb')
 
         compressor = Compressor(
-            data=data, dictionary=self.init_code_dictionary(k=k, file_type=file_name.split(".")[-1]))
+            data=data, dictionary=self.init_code_dictionary(k=k, file_type=file_name.split(".")[-1]), k=k)
         compressor_response = compressor.run()
 
         elapsed_time = compressor_response["time"]
@@ -85,7 +85,7 @@ if __name__ == '__main__':
 
     if command == '-c':
         compressed_ratio_values, time_values, indices_used_values = [], [], []
-        for dictionary_size in range(9, 17):
+        for dictionary_size in range(16, 17):
             with open(f"{file_path}/{file_name}", 'rb') as input_file:
                 input_file_size = os.path.getsize(f"{file_path}/{file_name}")
                 print(
@@ -102,7 +102,7 @@ if __name__ == '__main__':
                 indices_used_values.append(compressed_data["Indices"])
 
         generate_graphs(compressed_ratio_values,
-                        time_values, indices_used_values)
+                        time_values, indices_used_values, file_name.split(".")[-1] == 'txt')
 
     elif command == '-d':
         with open(file=f"{file_path}/compression/{file_name}.bin", mode='rb') as input_file:

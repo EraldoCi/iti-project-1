@@ -10,4 +10,4 @@ extra_bytes = {
 
 
 def get_number_of_bytes_necessary_for_number(i, file_type):
-    return 1 if i < 256 else math.floor(math.log(i, 2)) + (extra_bytes[file_type] or -6)
+    return 1 if i < 256 else math.floor(math.log(i, 2)) - 5

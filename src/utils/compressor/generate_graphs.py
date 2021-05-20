@@ -1,7 +1,8 @@
 import plotly.graph_objects as go
 
 
-def generate_graphs(compressed_ratio_values, time_values, indices_values):
+def generate_graphs(compressed_ratio_values, time_values, indices_values, is_txt):
+    result_type = 'corpus' if is_txt else 'video'
     compression_ratio_fig = go.Figure(
         data=[go.Scatter(x=[i for i in range(9, 17)],
                          y=compressed_ratio_values)],
@@ -9,7 +10,8 @@ def generate_graphs(compressed_ratio_values, time_values, indices_values):
                          xaxis_title="K",
                          yaxis_title="Razão de compressão"),
     )
-    compression_ratio_fig.write_image("results/compression_rate_x_k.png")
+    compression_ratio_fig.write_image(
+        f"results/{result_type}/compression_rate_x_k.png")
 
     time_fig = go.Figure(
         data=[go.Scatter(x=[i for i in range(9, 17)], y=time_values)],
@@ -20,7 +22,7 @@ def generate_graphs(compressed_ratio_values, time_values, indices_values):
                          yaxis_title="Tempo em segundos")
     )
 
-    time_fig.write_image("results/time_x_k.png")
+    time_fig.write_image(f"results/{result_type}/time_x_k.png")
 
     indices_fig = go.Figure(
         data=[go.Scatter(x=[i for i in range(9, 17)], y=indices_values)],
@@ -32,4 +34,4 @@ def generate_graphs(compressed_ratio_values, time_values, indices_values):
                          yaxis_title="Índices usados para codificação")
     )
 
-    indices_fig.write_image("results/indices_x_k.png")
+    indices_fig.write_image(f"results/{result_type}/indices_x_k.png")
