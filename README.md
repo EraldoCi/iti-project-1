@@ -65,7 +65,7 @@ os 256 símbolos da tabela [ASCII](https://www.rapidtables.com/code/text/ascii-t
 
 Dessa forma, o tamanho mínimo do dicionário será 2^9 = 512 bits. O _K_ é considerado um
 parâmetro de entrada, com o intuito de observado o comportamento da **razão de compressão**
-ao variar o tamanho do dicionário e dada uma mesma entrada. Além disso, o _K_ deve estar no intervalo 9 <= _K_ <= 16.
+ao variar o tamanho do dicionário e dada uma mesma entrada. Além disso, o _K_ deve estar no intervalo **[9, 16]**.
 
 Para realizar a análise comportamental do LZW, foram disponibilizados dois
 arquivos em formato de texto e vídeo: [corpus16MB.txt](/data/test/) e
@@ -121,9 +121,9 @@ No Gráfico abaixo, é apresentado a curva da **razão de compressão** em funç
 </figure>
 
 Então, percebe-se um significativo aumento da **razão de compressão**
-a medida que é incrementado _K_.
+a medida que é incrementado _k_.
 
-O Gráfico 2 é referente a relação entre quantidade **total de índices** utilizados no processo de codificação e a variação de _K_.
+O Gráfico 2 é referente a relação entre quantidade **total de índices** utilizados no processo de codificação e a variação de _k_.
 
 <figure align="center">
     <img width="600px" src="./results/corpus/indices_x_k.png">
@@ -131,7 +131,7 @@ O Gráfico 2 é referente a relação entre quantidade **total de índices** uti
 </figure>
 
 Dessa forma, verifica-se que a quantidade de índices necessários para
-codificar a mensagem diminui com o incremento de _K_. Este comportamento é coerente com o esperado, pois quanto maior o dicionário, mais
+codificar a mensagem diminui com o incremento de _k_. Este comportamento é coerente com o esperado, pois quanto maior o dicionário, mais
 sequências são salvas e, consequentemente, uma menor quantidade de índices é necessária.
 
 A seguir, o Gráfico 3 apresenta o **tempo de processamento** do algoritmo LZW considerando valores de _k_ entre 9 e 16.
@@ -151,16 +151,16 @@ No Gráfico 4, tem-se a curva de **razão de compressão** em função de _k_ pa
 
 <figure align="center">
   <img width="600px" src="./results/video/compression_rate_x_k.png">
-  <figcaption></figcaption>
+  <figcaption>Gráfico 4 - Razão de compressão por K</figcaption>
 </figure>
 
-O mp4 já é um formato compactado e isso pode ter influenciado no comportamento anormal da curva.
+Diferente do comportamento esperado, a razão de compressão diminui gradativamente para valores de _k_ < 14 e aumenta para valore de _k_ > 13. Isso pode ter interferência do formato do arquivo, uma vez que **mp4** já é um formato compactado.
 
-Na razão de compressão por K, a resposta gráfica é
+A seguir, o Gráfico 5 apresenta a relação entre a quantidade total de índices para codificação e _k_.
 
 <figure align="center">
     <img width="600px" src="./results/video/indices_x_k.png">
-    <figcaption></figcaption>
+    <figcaption>Gráfico 5 - Índices por K</figcaption>
 </figure>
 
 Assim como o resultado obtido para o arquivo de texto, o gráfico índices
@@ -168,7 +168,7 @@ por _K_ se comporta da mesma forma.
 
 <figure align="center">
   <img width="600px" src="./results/video/time_x_k.png">
-    <figcaption></figcaption>
+    <figcaption>Gráfico 6 - Tempo de processamento por K</figcaption>
 </figure>
 
 Após a aplicação da compressão no vídeo, o arquivo compactado permanece executável.
