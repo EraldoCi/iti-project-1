@@ -115,7 +115,7 @@ Para aplicação do LZW no arquivo _.txt_, houveram algumas dificuldades durante
 
 No Gráfico abaixo, é apresentado a curva da **razão de compressão** em função da variação do _k_ resultante da aplicação do LZW no arquivo corpus16MB.txt.
 
-<figure align="center">
+<figure>
   <img width="600px" src="./results/corpus/compression_rate_x_k.png">
   <figcaption>Gráfico 1 - Razão de compressão por K</figcaption>
 </figure>
@@ -125,7 +125,7 @@ a medida que é incrementado _k_.
 
 O Gráfico 2 é referente a relação entre quantidade **total de índices** utilizados no processo de codificação e a variação de _k_.
 
-<figure align="center">
+<figure>
     <img width="600px" src="./results/corpus/indices_x_k.png">
     <figcaption>Gráfico 2 - Índices por K</figcaption>
 </figure>
@@ -136,7 +136,7 @@ sequências são salvas e, consequentemente, uma menor quantidade de índices é
 
 A seguir, o Gráfico 3 apresenta o **tempo de processamento** do algoritmo LZW considerando valores de _k_ entre 9 e 16.
 
-<figure align="center">
+<figure>
     <img width="600px" src="./results/corpus/time_x_k.png">
     <figcaption>Gráfico 3 - Tempo de processamento por K</figcaption>
 </figure>
@@ -149,7 +149,7 @@ O debug e testes iniciais do algoritmo foram baseados em arquivos de texto. Some
 
 No Gráfico 4, tem-se a curva de **razão de compressão** em função de _k_ para o arquivo _.mp4_.
 
-<figure align="center">
+<figure>
   <img width="600px" src="./results/video/compression_rate_x_k.png">
   <figcaption>Gráfico 4 - Razão de compressão por K</figcaption>
 </figure>
@@ -158,18 +158,21 @@ Diferente do comportamento esperado, a razão de compressão diminui gradativame
 
 A seguir, o Gráfico 5 apresenta a relação entre a quantidade total de índices para codificação e _k_.
 
-<figure align="center">
+<figure>
     <img width="600px" src="./results/video/indices_x_k.png">
     <figcaption>Gráfico 5 - Índices por K</figcaption>
 </figure>
 
-Assim como o resultado obtido para o arquivo de texto, o gráfico índices
-por _K_ se comporta da mesma forma.
+Assim como a curva obtida para o arquivo de texto, o número total de índices decresce conforme _K_ aumenta de valor. No geral, foram utilizados entre 1.2M e 2.2M índices para _k_ entre 9 e 16 bits.
 
-<figure align="center">
+Por último, tem-se o Gráfico referente ao tempo de processamento do algoritmo em função de _k_ para o arquivo _.mp4_.
+
+<figure>
   <img width="600px" src="./results/video/time_x_k.png">
     <figcaption>Gráfico 6 - Tempo de processamento por K</figcaption>
 </figure>
+
+É possível observar que o tempo de processamento ficou entre **4 e 7 segundos**, porém com uma moda equivalente a **4 segundos**. No geral, o tempo de processamento do arquivo _.txt_ **(16MB)** foi até 9 vezes mais lento que o arquivo _.mp4_ **(2.1MB)**.
 
 Após a aplicação da compressão no vídeo, o arquivo compactado permanece executável.
 
