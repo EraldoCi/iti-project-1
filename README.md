@@ -11,10 +11,10 @@
 
 ## Introdução
 
-Inventado por Lempel e Ziv, o LZW é um algoritmo de compressão baseado
+Inventado por Abraham **L**empel, Jakob **Z**iv e Terry **W**elch, o LZW é um algoritmo de compressão baseado
 em dicionário (também conhecido como _factor substitution_), que consiste em
 substituir uma sequência de caracteres (ou _factor_) por um código mais curto que
-o índice desse no dicionário.
+o índice correspondente no dicionário.
 
 Em geral, a objetivo do LZW é obter uma redução da entropia, não apenas em um único caracter, mas em todas as palavras.
 
@@ -60,20 +60,20 @@ Tendo isso em vista, para o primeiro caso foi estabelecido que todos arquivos
 devem ser lidos no modo binário, assim, facilitando a leitura de qualquer tipo de
 informação, seja texto, imagem ou vídeo.
 
-O dicionário é inicializado, em ambos os modos de operação, com
+Logo, o dicionário é inicializado, em ambos os modos de operação, com
 os 256 símbolos da tabela [ASCII](https://www.rapidtables.com/code/text/ascii-table.html).
 
-Por outro lado, o tamanho mínimo do dicionário será 2^9 = 512 bits. O _K_ é considerado um
+Dessa forma, o tamanho mínimo do dicionário será 2^9 = 512 bits. O _K_ é considerado um
 parâmetro de entrada, com o intuito de observado o comportamento da **razão de compressão**
 ao variar o tamanho do dicionário e dada uma mesma entrada. Além disso, o _K_ deve estar no intervalo 9 <= _K_ <= 16.
 
-Para realizar a análise do comportamental do LZW, foram disponibilizados dois
+Para realizar a análise comportamental do LZW, foram disponibilizados dois
 arquivos em formato de texto e vídeo: [corpus16MB.txt](/data/test/) e
 [disco.mp4](/data/test/) repectivamente.
 
 Em relação ao algoritmo de compressão, foi realizada uma alteração na pesquisa
 de palavras existentes, de modo que se pesquisa a maior
-sequência presente no dicionário. Assim, o algoritmo de compressão tem
+sequência de caracteres presente no dicionário. Assim, o algoritmo de compressão tem
 o seguinte funcionamento:
 
 ```py
@@ -92,51 +92,87 @@ Enquanto != fim da mensagem, faça:
         ...
 ```
 
-<!-- Definir o que é: Razão de compressão -->
+O algoritmo foi implementado em **python** e utilizou as seguintes bibliotecas: **os**, **sys**, **struct**, **pathlib**, **tqdm** e **typing**.
 
-<!-- A razao de compressao é uma métrica de desempenho utilizada em algoritmos de compressao para determinar o quão bom é o seu desempenho. RC pode ser calculada da seguinte forma: -->
+Para a análise de resultados, foi considerado a métrica de desempenho **razão de compressão** (RC), descrita pela seguinte expressão:
 
-<!-- RC_ideal = tamanho do arquivo original / tamanho arquivo compactado -->
+**RC = tamanho_original / tamanho_compactado**
 
-<!--Contudo, caso você não consiga gerar o arquivo compactado exatamente com a quantidade de bytes correta, você pode estimar o tamanho do arquivo compactado com sendo: (quantIndices*k)/8. -->
+Contudo, para estimativa do tamanho do arquivo compactado, baseado na quantidade de índices do dicionário, foi aplicado o cálculo abaixo:
+
+**tamanho_compactado = (quantidade_indices \* k) / 8**
+
+Além disso, a análise dos resutados também considerou o tempo de processamento do algoritmo e a quantidade de índices utilizada em função da variação de **k**.
 
 ## Análise de resultados
 
+O algoritmo foi aplicado e analisado nos dois arquivos, [corpus16MB.txt](/data/test/) e
+[disco.mp4](/data/test/), considerando a variação de k entre 9 e 16 bits.
+
 ### Arquivo de texto
 
-Foram utilizados dois arquivos para analisar o comportamento do LZW. Então, logo abaixo são apresentados a: **razão de compressão**, **quantidade de índices por K** e **tempo de processamento por K** para o arquivo corpus16MB.txt.
+Para aplicação do LZW no arquivo _.txt_, houveram algumas dificuldades durante a implementação da compressão, inclusive relacionadas a acentuação de caracteres, porém a utilização de bibliotecas, em especial **struct**, permitiu atingir o comportamento adequado.
 
-<p align="center">
+No Gráfico abaixo, é apresentado a curva da **razão de compressão** em função da variação do _k_ resultante da aplicação do LZW no arquivo corpus16MB.txt.
+
+<figure align="center">
   <img width="600px" src="./results/corpus/compression_rate_x_k.png">
-  <img width="600px" src="./results/corpus/indices_x_k.png">
-  <img width="600px" src="./results/corpus/time_x_k.png">
-</p>
+  <figcaption>Gráfico 1 - Razão de compressão por K</figcaption>
+</figure>
 
-No gráfico de razão de compressão é notório o aumento da razão de compressão
-a medida que é incrementado o _K_.
+Então, percebe-se um significativo aumento da **razão de compressão**
+a medida que é incrementado _K_.
 
-No segundo gráfico pode ser observado que q quantidade de índices necessários para
-codificar a mensagem aumenta a medida que é incrementado o valor de _K_. E, este resultado é condizente com o **esperado**, pois quanto maior o dicionário, mais
-sequências serão salvas e consequentemente uma menor quantidade de índices serão
-necessários.
+O Gráfico 2 é referente a relação entre quantidade **total de índices** utilizados no processo de codificação e a variação de _K_.
 
-Já em relação ao tempo de processamento após variar o _K_, é possível observar
-que o tempo de execução é maior para valores de _K_ menores que 12.
+<figure align="center">
+    <img width="600px" src="./results/corpus/indices_x_k.png">
+    <figcaption>Gráfico 2 - Índices por K</figcaption>
+</figure>
+
+Dessa forma, verifica-se que a quantidade de índices necessários para
+codificar a mensagem diminui com o incremento de _K_. Este comportamento é coerente com o esperado, pois quanto maior o dicionário, mais
+sequências são salvas e, consequentemente, uma menor quantidade de índices é necessária.
+
+A seguir, o Gráfico 3 apresenta o **tempo de processamento** do algoritmo LZW considerando valores de _k_ entre 9 e 16.
+
+<figure align="center">
+    <img width="600px" src="./results/corpus/time_x_k.png">
+    <figcaption>Gráfico 3 - Tempo de processamento por K</figcaption>
+</figure>
+
+Então, para o arquivo _.txt_, os melhores tempos de processamento foram obtidos para k = 11 e k = 12. Para os demais valores de _k_, o tempo de processamento ficou entre **33 e 38 segundos**, exceto pelo caso _k_ = 10 que resultou em aproxidamente 50 segundos de processamento.
 
 ### Arquivo de vídeo
 
-Já em relação aos resultados com o arquivo de vídeo, é possível observar os
-comportamentos abaixo.
+O debug e testes iniciais do algoritmo foram baseados em arquivos de texto. Somente após a observação de um comportamento aceitável, foram realizadas as primeiras execuções no arquivo de vídeo. Dessa forma, não houveram grandes dificuldades de implementação para esse tipo de arquivo em específico.
 
-<p align="center">
+No Gráfico 4, tem-se a curva de **razão de compressão** em função de _k_ para o arquivo _.mp4_.
+
+<figure align="center">
   <img width="600px" src="./results/video/compression_rate_x_k.png">
-  <img width="600px" src="./results/video/indices_x_k.png">
-  <img width="600px" src="./results/video/time_x_k.png">
-</p>
+  <figcaption></figcaption>
+</figure>
 
 Na razão de compressão por K, a resposta gráfica é
+
+<figure align="center">
+    <img width="600px" src="./results/video/indices_x_k.png">
+    <figcaption></figcaption>
+</figure>
 
 Assim como o resultado obtido para o arquivo de texto, o gráfico índices
 por _K_ se comporta da mesma forma.
 
+<figure align="center">
+  <img width="600px" src="./results/video/time_x_k.png">
+    <figcaption></figcaption>
+</figure>
+
+Após a aplicação da compressão no vídeo, o arquivo compactado permanece executável.
+
 ## Considerações finais
+
+O trabalho desenvolvido permitiu uma expansão dos conhecimentos abordados em sala de aula, além da visão prática da teoria discutida por autores da literatura.
+
+Embora, os resultados não sejam tão bons quanto algumas tecnologias mais atuais afirmam disponibilizar, a abordagem utilizada no trabalho é a base de várias dessas soluções, como o **TIFF** e **GIF**.
