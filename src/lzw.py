@@ -7,7 +7,6 @@ from compressor import Compressor
 from decompressor import Decompressor
 from utils.compressor.generate_graphs import generate_graphs
 from utils.convert_time_to_seconds import convert_time_to_seconds
-from utils.get_number_of_bytes_necessary_for_number import get_number_of_bytes_necessary_for_number
 
 
 class LZW:
@@ -92,7 +91,7 @@ if __name__ == '__main__':
                     input_file.read(), file_name, int(dictionary_size))
                 print("INDICES ", compressed_data["Indices"])
                 compressed_ratio = (
-                    input_file_size * 8) / (compressed_data["Compression file size"] * dictionary_size)
+                    input_file_size * 8) / (compressed_data["Indices"] * dictionary_size)
 
                 compressed_ratio_values.append(compressed_ratio)
                 time_values.append(convert_time_to_seconds(
