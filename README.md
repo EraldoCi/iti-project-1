@@ -181,3 +181,20 @@ Após a aplicação da compressão no vídeo, o arquivo compactado permanece exe
 O trabalho desenvolvido permitiu uma expansão dos conhecimentos abordados em sala de aula, além da visão prática da teoria discutida por autores da literatura.
 
 Embora, os resultados não sejam tão bons quanto algumas tecnologias mais atuais afirmam disponibilizar, a abordagem utilizada no trabalho é a base de algumas soluções do mercado, como o **TIFF** e **GIF**.
+
+## Execução do código
+
+Caso queria comprimir um arquivo utilize:
+
+```.bash
+python lzw.py [nome_do_arquivo] -c
+```
+É importante descatar que os arquivos estão na pasta /data/large_inputs. 
+Então, caso seja necessário testes com outros arquivos, coloque nesta pasta. 
+
+E para descomprimir, utilize o comando:
+
+```.bash
+python lzw.py [nome_do_arquivo] -d
+```
+
