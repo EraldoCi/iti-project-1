@@ -154,7 +154,7 @@ No Gráfico 4, tem-se a curva de **razão de compressão** em função de _k_ pa
   <figcaption>Gráfico 4 - Razão de compressão por K</figcaption>
 </figure>
 
-Diferente do comportamento esperado, a razão de compressão diminui gradativamente para valores de _k_ < 14 e aumenta para valore de _k_ > 13. Isso pode ter interferência do formato do arquivo, uma vez que **mp4** já é um formato compactado.
+Diferente do comportamento esperado, a razão de compressão diminui gradativamente para valores de _k_ < 14 e aumenta para valores de _k_ >= 14. Isso pode ter interferência do formato do arquivo, uma vez que **mp4** já é um formato compactado.
 
 A seguir, o Gráfico 5 apresenta a relação entre a quantidade total de índices para codificação e _k_.
 
