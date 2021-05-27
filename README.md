@@ -154,6 +154,8 @@ No Gráfico 4, tem-se a curva de **razão de compressão** em função de _k_ pa
   <figcaption></figcaption>
 </figure>
 
+O mp4 já é um formato compactado e isso pode ter influenciado no comportamento anormal da curva.
+
 Na razão de compressão por K, a resposta gráfica é
 
 <figure align="center">
