@@ -156,23 +156,23 @@ No Gráfico 4, tem-se a curva de **razão de compressão** em função de _k_ pa
 
 Diferente do comportamento esperado, a razão de compressão diminui gradativamente para valores de _k_ < 14 e aumenta para valores de _k_ >= 14. Isso pode ter interferência do formato do arquivo, uma vez que **mp4** já é um formato compactado.
 
-A seguir, o Gráfico 5 apresenta a relação entre a quantidade total de índices para codificação e _k_.
+A seguir, o Gráfico 5 apresenta a relação entre a quantidade total de índices para codificação e o _k_.
 
 <figure>
     <img width="600px" src="./results/video/indices_x_k.png">
     <figcaption>Gráfico 5 - Índices por K</figcaption>
 </figure>
 
-Assim como a curva obtida para o arquivo de texto, o número total de índices decresce conforme _K_ aumenta de valor. No geral, foram utilizados entre 1.2M e 2.2M índices para _k_ entre 9 e 16 bits.
+Assim como na curva obtida para o arquivo de texto, o número total de índices decresce conforme _K_ aumenta de valor. No geral, foram utilizados entre 1.2M e 2.2M índices para _k_ entre 9 e 16 bits.
 
-Por último, tem-se o Gráfico referente ao tempo de processamento do algoritmo em função de _k_ para o arquivo _.mp4_.
+Por último, tem-se o Gráfico 6 referente ao tempo de processamento do algoritmo em função de _k_ para o arquivo _.mp4_.
 
 <figure>
   <img width="600px" src="./results/video/time_x_k.png">
     <figcaption>Gráfico 6 - Tempo de processamento por K</figcaption>
 </figure>
 
-É possível observar que o tempo de processamento ficou entre **4 e 7 segundos**, porém com uma moda equivalente a **4 segundos**. No geral, o tempo de processamento do arquivo _.txt_ **(16MB)** foi até 9 vezes mais lento que o arquivo _.mp4_ **(2.1MB)**.
+É possível observar que o tempo de processamento ficou entre **4 e 7 segundos**, porém com uma moda equivalente a **5 segundos**. No geral, o tempo de processamento do arquivo _.txt_ **(16MB)** foi até 9 vezes mais lento que o arquivo _.mp4_ **(2.1MB)**.
 
 Após a aplicação da compressão no vídeo, o arquivo compactado permanece executável.
 
@@ -180,4 +180,4 @@ Após a aplicação da compressão no vídeo, o arquivo compactado permanece exe
 
 O trabalho desenvolvido permitiu uma expansão dos conhecimentos abordados em sala de aula, além da visão prática da teoria discutida por autores da literatura.
 
-Embora, os resultados não sejam tão bons quanto algumas tecnologias mais atuais afirmam disponibilizar, a abordagem utilizada no trabalho é a base de várias dessas soluções, como o **TIFF** e **GIF**.
+Embora, os resultados não sejam tão bons quanto algumas tecnologias mais atuais afirmam disponibilizar, a abordagem utilizada no trabalho é a base de algumas soluções do mercado, como o **TIFF** e **GIF**.
